@@ -1,0 +1,39 @@
+﻿@model IEnumerable<Customer>
+
+@{
+	ViewData["Title"] = "Customers";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Customers</h1>
+
+@if (Model is null || !Model.Any())
+{
+	<p>We have no customers yet.</p>
+}
+else
+{
+	<table class="table table-bordered table-hover">
+		<thead>
+		<tr>
+			<th>Customer</th>
+		</tr>
+		</thead>
+		<tbody>
+			@foreach (var customer in Model)
+			{
+				<tr>
+					<td>
+						@Html.ActionLink(
+							customer.Name,
+							"Details",
+							"Customers",
+							new {id = customer.Id},
+							null)
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+}
+

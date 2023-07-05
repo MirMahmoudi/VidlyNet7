@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using VidlyNet7.Presentation.Data;
 using VidlyNet7.Presentation.Models;
 using VidlyNet7.Presentation.ViewModels;
 
@@ -6,11 +8,29 @@ namespace VidlyNet7.Presentation.Controllers
 {
 	public class MoviesController : Controller
 	{
+		private readonly ApplicationDbContext _dbContext;
+
+		public MoviesController(ApplicationDbContext dbContext)
+		{
+			_dbContext = dbContext;
+		}
+
 		// GET: Movies
 		public IActionResult Index()
 		{
-			var movies = GetMovies();
+			var movies = _dbContext.Movies.Include(m => m.Genre);
 			return View(movies);
+		}
+
+		// GET: Movies/Details/Id
+		public IActionResult Details(int id)
+		{
+			var movie = _dbContext.Movies
+				.Include(m => m.Genre)
+				.SingleOrDefault(m => m.Id == id);
+
+			if (movie is null) return NotFound();
+			return View(movie);
 		}
 
 		// GET: Movies/Random
@@ -31,13 +51,5 @@ namespace VidlyNet7.Presentation.Controllers
 			return View(viewModel);
 		}
 
-		private IEnumerable<Movie> GetMovies()
-		{
-			return new List<Movie>
-			{
-				new Movie { Id = 1, Name = "Shrek" },
-				new Movie { Id = 2, Name = "Wall-e" }
-			};
-		}
 	}
 }

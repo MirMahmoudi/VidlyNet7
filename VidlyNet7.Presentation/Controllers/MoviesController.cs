@@ -33,6 +33,52 @@ namespace VidlyNet7.Presentation.Controllers
 			return View(movie);
 		}
 
+		// GET: Movies/New
+		public IActionResult New()
+		{
+			var movieForm = new MovieFormViewModel
+			{
+				Genres = _dbContext.Genres.ToList()
+			};
+			return View("MovieForm", movieForm);
+		}
+
+		// POST: Movies/Save
+		public IActionResult Save(Movie movie)
+		{
+			if (movie.Id == 0)
+			{
+				movie.DateAdded = DateTime.Now;
+				_dbContext.Movies.Add(movie);
+			}
+			else
+			{
+				var movieInDb = _dbContext.Movies.Single(m => m.Id == movie.Id);
+				movieInDb.Name = movie.Name;
+				movieInDb.GenreId = movie.GenreId;
+				movieInDb.NumberInStock = movie.NumberInStock;
+				movieInDb.ReleaseDate = movie.ReleaseDate;
+			}
+			_dbContext.SaveChanges();
+
+			return RedirectToAction("Index", "Movies");
+		}
+
+		// GET: Movies/Edit/:id
+		public IActionResult Edit(int id)
+		{
+			var movie = _dbContext.Movies.SingleOrDefault(m => m.Id == id);
+
+			if (movie == null) return NotFound();
+
+			var movieForm = new MovieFormViewModel
+			{
+				Movie = movie,
+				Genres = _dbContext.Genres.ToList()
+			};
+			return View("MovieForm", movieForm);
+		}
+
 		// GET: Movies/Random
 		public IActionResult Random()
 		{

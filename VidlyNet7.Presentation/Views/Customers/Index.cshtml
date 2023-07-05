@@ -5,7 +5,13 @@
 	Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Customers</h1>
+<h2>Customers</h2>
+@Html.ActionLink(
+	"New Customer",
+	"New",
+	"Customers",
+	null,
+	new { @class = "btn btn-primary mt-4 mb-4" })
 
 @if (Model is null || !Model.Any())
 {
@@ -15,9 +21,11 @@ else
 {
 	<table class="table table-bordered table-hover">
 		<thead>
-		<tr>
-			<th>Customer</th>
-		</tr>
+			<tr>
+				<th>Customer</th>
+				<th>Discount Rate</th>
+				<th>Membership Type</th>
+			</tr>
 		</thead>
 		<tbody>
 			@foreach (var customer in Model)
@@ -26,11 +34,13 @@ else
 					<td>
 						@Html.ActionLink(
 							customer.Name,
-							"Details",
+							"Edit",
 							"Customers",
 							new {id = customer.Id},
 							null)
 					</td>
+					<td>@customer.MembershipType!.DiscountRate</td>
+					<td>@customer.MembershipType.Name</td>
 				</tr>
 			}
 		</tbody>

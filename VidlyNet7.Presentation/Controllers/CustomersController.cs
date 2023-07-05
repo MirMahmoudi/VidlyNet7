@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using VidlyNet7.Presentation.Data;
 using VidlyNet7.Presentation.Models;
+using VidlyNet7.Presentation.ViewModels;
 
 namespace VidlyNet7.Presentation.Controllers
 {
@@ -33,13 +34,50 @@ namespace VidlyNet7.Presentation.Controllers
 			return View(customer);
 		}
 
-		private IEnumerable<Customer> GetCustomers()
+		// GET: Customers/New
+		public IActionResult New()
 		{
-			return new List<Customer>
+			var customerFormModel = new CustomerFormViewModel
 			{
-				new Customer { Id = 1, Name = "John Smith" },
-				new Customer { Id = 2, Name = "Mar Williams" }
+				MembershipTypes = _dbContext.MembershipTypes.ToList()
 			};
+
+			return View("CustomerForm", customerFormModel);
+		}
+
+		// POST: Customers/Save
+		[HttpPost]
+		public IActionResult Save(Customer customer)
+		{
+			if (customer.Id == 0)
+				_dbContext.Customers.Add(customer);
+			else
+			{
+				var customerInDb = _dbContext.Customers.Single(c => c.Id == customer.Id);
+				customerInDb.Name = customer.Name;
+				customerInDb.Birthdate = customer.Birthdate;
+				customerInDb.IsSubscribedToNewsletter = customer.IsSubscribedToNewsletter;
+				customerInDb.MembershipTypeId = customer.MembershipTypeId;
+			}
+
+			_dbContext.SaveChanges();
+			return RedirectToAction("Index", "Customers");
+		}
+
+		// GET: Customers/Edit/:id
+		public IActionResult Edit(int id)
+		{
+			var customer = _dbContext.Customers.SingleOrDefault(c => c.Id == id);
+
+			if (customer == null) return NotFound();
+
+			var customerFormModel = new CustomerFormViewModel
+			{
+				Customer = customer,
+				MembershipTypes = _dbContext.MembershipTypes.ToList()
+			};
+
+			return View("CustomerForm", customerFormModel);
 		}
 	}
 }

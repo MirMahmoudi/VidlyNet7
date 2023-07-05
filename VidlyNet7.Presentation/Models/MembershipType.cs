@@ -7,7 +7,7 @@ namespace VidlyNet7.Presentation.Models
 		public int Id { get; set; }
 
 		[Required]
-		public string Name { get; set; }
+		public string Name { get; set; } = string.Empty;
 
 		public short SignUpFee { get; set; }
 		public byte DurationInMonth { get; set; }

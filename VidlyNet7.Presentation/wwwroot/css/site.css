@@ -20,3 +20,7 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.input-validation-error {
+    border: 1px solid red;
+}

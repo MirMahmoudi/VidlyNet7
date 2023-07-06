@@ -39,6 +39,7 @@ namespace VidlyNet7.Presentation.Controllers
 		{
 			var customerFormModel = new CustomerFormViewModel
 			{
+				Customer = new Customer(),
 				MembershipTypes = _dbContext.MembershipTypes.ToList()
 			};
 
@@ -47,21 +48,32 @@ namespace VidlyNet7.Presentation.Controllers
 
 		// POST: Customers/Save
 		[HttpPost]
+		[ValidateAntiForgeryToken]
 		public IActionResult Save(Customer customer)
 		{
-			if (customer.Id == 0)
-				_dbContext.Customers.Add(customer);
-			else
+			if (ModelState.IsValid)
 			{
-				var customerInDb = _dbContext.Customers.Single(c => c.Id == customer.Id);
-				customerInDb.Name = customer.Name;
-				customerInDb.Birthdate = customer.Birthdate;
-				customerInDb.IsSubscribedToNewsletter = customer.IsSubscribedToNewsletter;
-				customerInDb.MembershipTypeId = customer.MembershipTypeId;
+				if (customer.Id == 0)
+					_dbContext.Customers.Add(customer);
+				else
+				{
+					var customerInDb = _dbContext.Customers.Single(c => c.Id == customer.Id);
+					customerInDb.Name = customer.Name;
+					customerInDb.Birthdate = customer.Birthdate;
+					customerInDb.IsSubscribedToNewsletter = customer.IsSubscribedToNewsletter;
+					customerInDb.MembershipTypeId = customer.MembershipTypeId;
+				}
+
+				_dbContext.SaveChanges();
+				return RedirectToAction("Index", "Customers");
 			}
 
-			_dbContext.SaveChanges();
-			return RedirectToAction("Index", "Customers");
+			var customerForm = new CustomerFormViewModel
+			{
+				Customer = customer,
+				MembershipTypes = _dbContext.MembershipTypes.ToList()
+			};
+			return View("CustomerForm", customerForm);
 		}
 
 		// GET: Customers/Edit/:id

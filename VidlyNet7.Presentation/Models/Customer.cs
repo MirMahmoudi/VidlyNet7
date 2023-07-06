@@ -6,7 +6,8 @@ namespace VidlyNet7.Presentation.Models
     {
         public int Id { get; set; }
 
-        [Required, StringLength(255)]
+        [Required(ErrorMessage = "Please enter customer's name!")]
+        [StringLength(255)]
         public string Name { get; set; } = string.Empty;
 
         public bool IsSubscribedToNewsletter { get; set; }
@@ -17,6 +18,7 @@ namespace VidlyNet7.Presentation.Models
         public int MembershipTypeId { get; set; }
 
         [Display(Name = "Date of Birth")]
+        [Min18YearsIfMember]
         public DateTime? Birthdate { get; set; }
     }
 }

@@ -18,9 +18,7 @@ namespace VidlyNet7.Presentation.Controllers
 		// GET: Customers
 		public IActionResult Index()
 		{
-			var customers = _dbContext.Customers
-				.Include(c => c.MembershipType);
-			return View(customers);
+			return View();
 		}
 
 		// GET: Customers/Details/Id

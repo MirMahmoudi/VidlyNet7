@@ -1,11 +1,12 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using VidlyNet7.Presentation.Data;
 using VidlyNet7.Presentation.Dto;
 using VidlyNet7.Presentation.Models;
 
-namespace VidlyNet7.Presentation.Controllers.NewFolder
+namespace VidlyNet7.Presentation.Controllers.Apis
 {
 	[Route("api/[controller]")]
 	[ApiController]
@@ -26,7 +27,8 @@ namespace VidlyNet7.Presentation.Controllers.NewFolder
 		[ProducesResponseType( StatusCodes.Status200OK, Type = typeof(IEnumerable<CustomerDto>) )]
 		public IActionResult GetCustomers()
 		{
-			var customers = _mapper.Map<IEnumerable<Customer>, IEnumerable<CustomerDto>>(_dbContext.Customers.ToList());
+			var customersInDb = _dbContext.Customers.Include(c => c.MembershipType);
+			var customers = _mapper.Map<IEnumerable<Customer>, IEnumerable<CustomerDto>>(customersInDb);
 			return Ok( customers );
 		}
 
@@ -37,7 +39,10 @@ namespace VidlyNet7.Presentation.Controllers.NewFolder
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		public IActionResult GetCustomer(int id)
 		{
-			var customerInDb = _dbContext.Customers.SingleOrDefault(x => x.Id == id);
+			var customerInDb = _dbContext.Customers
+				.Include(c => c.MembershipType)
+				.SingleOrDefault(x => x.Id == id);
+
 			if (customerInDb is null) return NotFound();
 
 			return Ok( _mapper.Map<Customer, CustomerDto>(customerInDb) );
@@ -49,7 +54,7 @@ namespace VidlyNet7.Presentation.Controllers.NewFolder
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		public IActionResult CreateCustomer(CustomerDto customerDto)
 		{
-			if (!ModelState.IsValid || customerDto.MembershipTypeId <= 0 || customerDto.MembershipTypeId > 4) return BadRequest();
+			if (!ModelState.IsValid || customerDto.MembershipTypeId is <= 0 or > 4) return BadRequest();
 
 			var customer = _mapper.Map<CustomerDto, Customer>(customerDto);
 
@@ -62,6 +67,7 @@ namespace VidlyNet7.Presentation.Controllers.NewFolder
 
 		// PUT: /api/Customers/:id
 		[HttpPut]
+		[Route("{id:int}")]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerDto))]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -80,6 +86,7 @@ namespace VidlyNet7.Presentation.Controllers.NewFolder
 
 		// DELETE: /api/Customers/:id
 		[HttpDelete]
+		[Route("{id:int}")]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerDto))]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		public IActionResult DeleteCustomer(int id)

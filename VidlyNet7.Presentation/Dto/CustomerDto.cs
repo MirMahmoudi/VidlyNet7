@@ -14,6 +14,8 @@ namespace VidlyNet7.Presentation.Dto
 
 		public int MembershipTypeId { get; set; }
 
+		public MembershipTypeDto? MembershipType { get; set; }
+
 		public DateTime? Birthdate { get; set; }
 	}
 }

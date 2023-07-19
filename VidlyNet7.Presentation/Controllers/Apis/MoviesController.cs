@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using VidlyNet7.Presentation.Data;
 using VidlyNet7.Presentation.Dto;
 using VidlyNet7.Presentation.Models;
@@ -25,7 +26,9 @@ namespace VidlyNet7.Presentation.Controllers.Apis
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(IEnumerable<MovieDto>))]
 		public IActionResult GetMovies()
 		{
-			var movies = _mapper.Map<IEnumerable<Movie>, IEnumerable<MovieDto>>( _dbContext.Movies.ToList() );
+			var movies = _mapper.Map<IEnumerable<Movie>, IEnumerable<MovieDto>>( 
+				_dbContext.Movies.Include(m => m.Genre).ToList()
+				);
 			return Ok(movies);
 		}
 
@@ -36,7 +39,9 @@ namespace VidlyNet7.Presentation.Controllers.Apis
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		public IActionResult GetMovie(int id)
 		{
-			var movieInDb = _dbContext.Movies.SingleOrDefault(x => x.Id == id);
+			var movieInDb = _dbContext.Movies
+				.Include(m => m.Genre)
+				.SingleOrDefault(x => x.Id == id);
 			if (movieInDb == null) return NotFound();
 
 			return Ok( _mapper.Map<Movie, MovieDto>(movieInDb) );
@@ -62,6 +67,7 @@ namespace VidlyNet7.Presentation.Controllers.Apis
 
 		// PUT: /api/Movies/:id
 		[HttpPut]
+		[Route("{id:int}")]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MovieDto))]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -80,6 +86,7 @@ namespace VidlyNet7.Presentation.Controllers.Apis
 
 		// DELETE: /api/Movies/:id
 		[HttpDelete]
+		[Route("{id:int}")]
 		[ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MovieDto))]
 		[ProducesResponseType(StatusCodes.Status404NotFound)]
 		public IActionResult DeleteMovie(int id)

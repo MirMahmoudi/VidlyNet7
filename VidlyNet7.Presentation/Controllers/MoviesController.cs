@@ -18,8 +18,7 @@ namespace VidlyNet7.Presentation.Controllers
 		// GET: Movies
 		public IActionResult Index()
 		{
-			var movies = _dbContext.Movies.Include(m => m.Genre);
-			return View(movies);
+			return View();
 		}
 
 		// GET: Movies/Details/Id
